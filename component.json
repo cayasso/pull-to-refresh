@@ -3,7 +3,11 @@
   "repo": "cayasso/pull-to-refresh",
   "description": "A pull to refresh component",
   "version": "0.0.1",
-  "keywords": [],
+  "keywords": [
+    "scroll",
+    "pull to refresh",
+    "scrolling"
+  ],
   "dependencies": {
     "component/events": "*",
     "component/emitter": "*"
