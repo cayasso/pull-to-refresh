@@ -1,7 +1,7 @@
 {
   "name": "pull-to-refresh",
   "repo": "cayasso/pull-to-refresh",
-  "description": "A pull to refresh component",
+  "description": "A pull to refresh component for iOS 5+",
   "version": "0.0.1",
   "keywords": [
     "scroll",
