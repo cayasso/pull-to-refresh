@@ -1,0 +1,21 @@
+{
+  "name": "pull-to-refresh",
+  "repo": "cayasso/pull-to-refresh",
+  "description": "A pull to refresh component",
+  "version": "0.0.1",
+  "keywords": [],
+  "dependencies": {
+    "events": "*",
+    "components/events": "*",
+    "component/events": "*"
+  },
+  "development": {},
+  "license": "MIT",
+  "scripts": [
+    "index.js",
+    "template.js"
+  ],
+  "styles": [
+    "pull-to-refresh.css"
+  ]
+}
