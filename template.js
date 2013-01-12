@@ -1,1 +1,1 @@
-module.exports = '<div class="pull-to-refresh"><div class="icon"></div><div class="message"><i class="arrow"></i><i class="spinner large"></i><span class="pull">Pull to refresh</span><span class="release">Release to refresh</span><span class="loading">Loading...</span></div></div>';
+module.exports = '<div class="icon"></div><div class="message"><i class="arrow"></i><i class="spinner large"></i><span class="pull">Pull to refresh</span><span class="release">Release to refresh</span><span class="loading">Loading...</span></div>';

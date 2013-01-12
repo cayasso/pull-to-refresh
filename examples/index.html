@@ -17,22 +17,9 @@
             document.getElementById('body').setAttribute('class', isTouch ? 'touch' : 'desktop');
         </script>
         <div class="main-container">
-            <header>
-                <h1>Pull-to-refresh for native scrolling</h1>
-                <p>
-                    Since iOS 5 mobile Safari supports native scrolling for overflowing divs. Beforehand it was necessary to emulate the scrolling behavior with Javascript. The most popular scrolling libraries added some features to the scrolling part. Such as the pretty popular "Pull-to-refresh" functionality.
-                </p>
-                <p>
-                    This tiny jQuery plugin allows you to use "Pull-to-refresh" with native scrolling OOTB! Check out this blog entry to learn how it works or the github project to download.
-                </p>
-                <p>
-                    Cheers, <br/>
-                    <a href="http://damien.antipa.at">Damien Antipa</a>
-                </p>
-            </header>
             <div id="demo">
                 <div id="demo-window">
-                    <div class="scrollable">
+                    <div id="scrollable" class="scrollable">
                         <div class="wrap">
                             <ul class="content">
                                 <li class="err">Works on</li>
@@ -217,7 +204,18 @@
         <script src="../build/build.js"></script>
         <script>
             var el = document.getElementById('scrollable')
+            var PullToRefresh = require('pull-to-refresh');
             var pullToRefresh = PullToRefresh(el);
+
+
+            pullToRefresh.on('release', function () {
+                var self = this;
+                setTimeout(function () {
+                    
+                    self.complete();
+
+                }, 2000);
+            });
 
             /*$('.scrollable').pullToRefresh({
                 callback: function() {

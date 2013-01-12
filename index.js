@@ -4,7 +4,9 @@
  */
 
 var events = require('events');
+var Emitter = require('emitter');
 var html = require('./template');
+
 var classes = {
     content : '.wrap',
     ptr     : '.pull-to-refresh',
@@ -23,22 +25,47 @@ module.exports = PullToRefresh;
 
 
 function PullToRefresh (el, options) {
-    if (!(this instanceof PullToRefresh)) return new PullToRefresh(el);
+    if (!(this instanceof PullToRefresh)) return new PullToRefresh(el, options);
     if (!el) throw new TypeError('PullToRefresh() requires an element');
+    Emitter.call(this);
+    options = options || {};
     this.el = el;
-    this.el.innerHTML = html;
-    //this.child = el.children[0];
-    this.messages = {
+    this.child = el.children[0];
+    this.text = {
         pull: options.pull || 'Pull to refresh',
         release: options.release || 'Release to refresh',
         loading: options.loading || 'Loading...'
     };
+        
+    this.render();
+    this.bind();
 
-    for (var key in classes) this[key] = el.querySelector(classes[key]);
+    this.height = this.ptr.offsetHeight;
+    this.arrowDelay = this.height / 3 * 2;
+    this.isActivated = false,
+    this.isLoading = false;
 }
 
+/**
+* Inherits from `Emitter.prototype`.
+*/
+
+PullToRefresh.prototype.__proto__ = Emitter.prototype;
+
+PullToRefresh.prototype.render = function () {
+    var div = document.createElement('div');
+    div.innerHTML = html;
+    div.setAttribute('class', 'pull-to-refresh');
+    this.el.insertBefore(div, this.el.firstChild);
+    for (var key in classes) this[key] = this.el.querySelector(classes[key]);
+    setText(this.release, this.text.release);
+    setText(this.loading, this.text.loading);
+    setText(this.pull, this.text.pull);
+};
+
 PullToRefresh.prototype.bind = function () {
-    this.events = events(this.child, this);
+    console.log(this);
+    this.events = events(this.content, this);
     this.events.bind('mousedown', 'ontouchstart');
     this.events.bind('mousemove', 'ontouchmove');
     this.events.bind('touchstart');
@@ -48,37 +75,67 @@ PullToRefresh.prototype.bind = function () {
     this.docEvents.bind('mouseup', 'ontouchend');
     this.docEvents.bind('touchend');
 };
-/*PullToRefresh.prototype.render = function () {
-    document.querySelector();
-};*/
+
 PullToRefresh.prototype.unbind = function () {
     this.events.unbind();
     this.docEvents.unbind();
 };
 
 PullToRefresh.prototype.ontouchstart = function(e){
-
+    this.complete();
+    if (0 === this.el.scrollTop) {
+        this.el.scrollTop += 1;
+    }
 };
 
 PullToRefresh.prototype.ontouchmove = function(e){
-
+    var top = this.el.scrollTop;
+    var deg = 180 - (top < -this.height ? 180 : // degrees to move for the arrow (starts at 180° and decreases)
+    (top < -this.arrowDelay ? Math.round(180 / (this.height - this.arrowDelay) * (-top - this.arrowDelay))
+    : 0));
+    if (this.isLoading) return true;
+    var s = this.arrow.style;
+    s.display = 'block';
+    s.webkitTransform = s.MozTransform = s.msTransform = s.OTransform = 'rotate('+ deg + 'deg)';
+    this.spinner.style.display = 'none';
+    if (-top > this.height) { // release state
+        this.release.style.opacity = 1;
+        this.pull.style.opacity = 0;
+        this.loading.style.opacity = 0;
+        this.isActivated = true;
+        this.emit('release', e);
+    } else if (top > -this.height) { // pull state
+        this.release.style.opacity = 0;
+        this.pull.style.opacity = 1;
+        this.loading.style.opacity = 0;
+        this.isActivated = false;
+        this.emit('pull', e);
+    }
 };
 
 PullToRefresh.prototype.ontouchend = function(e){
-
+    var top = this.el.scrollTop;
+                
+    if (this.isActivated) { // loading state
+        this.isLoading = true;
+        this.isActivated = false;
+        this.release.style.opacity = 0;
+        this.pull.style.opacity = 0;
+        this.loading.style.opacity = 1;
+        this.arrow.style.display = 'none';
+        this.spinner.style.display = 'block';
+        this.ptr.style.position = 'static';
+        this.emit('loading', e);
+    }
 };
 
-
-
-PullToRefresh.prototype.pullMsg = function (message) {
-    this.messages.pull = message;
+PullToRefresh.prototype.complete = function () {
+    this.ptr.style.position = 'absolute';
+    this.ptr.style.height = this.height;
+    this.isLoading = false;
 };
 
-PullToRefresh.prototype.releaseMsg = function (message) {
-    this.messages.release = message;
-};
-
-PullToRefresh.prototype.loadingMsg = function (message) {
-    this.messages.loading = message;
-};
-
+function setText (el, text) {
+    el.innerHTML='';
+    el.appendChild(document.createTextNode(text));
+}
