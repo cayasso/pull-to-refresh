@@ -30,18 +30,22 @@ function PullToRefresh (el, options) {
     Emitter.call(this);
     options = options || {};
     this.el = el;
+    var self = this;
     this.child = el.children[0];
     this.text = {
         pull: options.pull || 'Pull to refresh',
         release: options.release || 'Release to refresh',
         loading: options.loading || 'Loading...'
     };
-        
+
     this.render();
     this.bind();
 
-    this.height = this.ptr.offsetHeight;
-    this.arrowDelay = this.height / 3 * 2;
+    setTimeout(function () {
+        self.height = self.ptr.offsetHeight;
+        self.arrowDelay = self.height / 3 * 2;
+    }, 0);
+
     this.isActivated = false,
     this.isLoading = false;
 }
@@ -50,7 +54,7 @@ function PullToRefresh (el, options) {
 * Inherits from `Emitter.prototype`.
 */
 
-PullToRefresh.prototype.__proto__ = Emitter.prototype;
+Emitter(PullToRefresh.prototype);
 
 PullToRefresh.prototype.render = function () {
     var div = document.createElement('div');
@@ -64,7 +68,6 @@ PullToRefresh.prototype.render = function () {
 };
 
 PullToRefresh.prototype.bind = function () {
-    console.log(this);
     this.events = events(this.content, this);
     this.events.bind('mousedown', 'ontouchstart');
     this.events.bind('mousemove', 'ontouchmove');
@@ -103,7 +106,7 @@ PullToRefresh.prototype.ontouchmove = function(e){
         this.pull.style.opacity = 0;
         this.loading.style.opacity = 0;
         this.isActivated = true;
-        this.emit('release', e);
+        this.emit('release', e, top, this.height);
     } else if (top > -this.height) { // pull state
         this.release.style.opacity = 0;
         this.pull.style.opacity = 1;
@@ -115,7 +118,6 @@ PullToRefresh.prototype.ontouchmove = function(e){
 
 PullToRefresh.prototype.ontouchend = function(e){
     var top = this.el.scrollTop;
-                
     if (this.isActivated) { // loading state
         this.isLoading = true;
         this.isActivated = false;

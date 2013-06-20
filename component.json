@@ -20,5 +20,9 @@
   ],
   "styles": [
     "pull-to-refresh.css"
+  ],
+  "images": [
+    "img/arrow.png",
+    "img/spinner.gif"
   ]
 }
